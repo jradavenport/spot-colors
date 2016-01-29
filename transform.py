@@ -1,8 +1,6 @@
 '''
 Code to do transformation from offset in 1 filter system to offset in another
 
-this is a test edit.
-
 Doing with mindset (currently) of:
 given starspot modulation from Kepler, a spot delta T, and a stellar T_eff
  predict the ugrizJHK response
