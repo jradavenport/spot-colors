@@ -25,8 +25,8 @@ def get_model( temp ):
     model_file = 'PHOENIX-ACES-AGSS-COND-2011_R10000FITS_Z-0.0/lte0' + temp + '-4.50-0.0.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits'
     hdulist = fits.open(model_file)
     flux = hdulist[0].data
-    wavelength = np.exp(hdulist[0].header[('CRVAL1')]+hdulist[0].header[('CDELT1')]*np.arange(0,212027))
-    return wavelength, flux, temp
+    wavelength = np.exp(hdulist[0].header[('CRVAL1')]+hdulist[0].header[('CDELT1')]*np.arange(0,212027))/(10**4)
+    return wavelength, flux, hdulist
     
 def make_spotmodel( PhTemp, SpTemp, FillFactor ):
     '''
@@ -46,13 +46,16 @@ def make_spotmodel( PhTemp, SpTemp, FillFactor ):
     Returns
     -------
     wavelength: array
-        Corresponding wavelengths of spectral data, units of Angstroms
+        Corresponding wavelengths of spectral data, units of microns
     
     tot_flux: array
-        Combined fluxes of the photospheric and spot spectra, units of ergs/s/cm^2
+        Combined fluxes of the photospheric and spot spectra, units of W/cm^2/micron
     
     PhTemp, SpTemp, FillFactor: str
         Input values
     '''
-    tot_flux = (1-FillFactor)*get_model( PhTemp )[1] + FillFactor*get_model( SpTemp )[1]
-    return wavelength, tot_flux, PhTemp, SpTemp, FillFactor
+    PhWavelength, PhFlux, hdulist1=get_model( PhTemp )
+    SpWavelength, SpFlux, hdulist2=get_model( SpTemp )
+    flux_Phoenix = (10**-11)*((1-FillFactor)*PhFlux + FillFactor*SpFlux)
+    wavelength = (np.exp(hdulist1[0].header[('CRVAL1')]+hdulist1[0].header[('CDELT1')]*np.arange(0,212027)))/(10**4)
+    return wavelength, flux_Phoenix, PhTemp, SpTemp, FillFactor
